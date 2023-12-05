@@ -8,13 +8,9 @@ namespace SimpleAuthApi.Services;
 
 public class UserManagementService(
     AppDbContext dbContext,
-    UserManager<User> userManager,
-    IUserStore<User> userStore,
-    IUserEmailStore<User> emailStore) : IUserManagementService
+    UserManager<User> userManager) : IUserManagementService
 {
     private readonly AppDbContext dbContext = dbContext;
-    private readonly IUserStore<User> userStore;
-    private readonly IUserEmailStore<User> emailStore;
     private readonly UserManager<User> userManager = userManager;
 
     public async Task<UserViewModel[]> GetAllAsync(CancellationToken cancellationToken = default)
@@ -43,12 +39,10 @@ public class UserManagementService(
     {
         var user = new User
         {
+            Email = createModel.Email,
             FirstName = createModel.FirstName,
             LastName = createModel.LastName,
         };
-
-        await userStore.SetUserNameAsync(user, createModel.Email, cancellationToken);
-        await emailStore.SetEmailAsync(user, createModel.Email, cancellationToken);
 
         var result = await userManager.CreateAsync(user, createModel.Password);
 
@@ -72,9 +66,13 @@ public class UserManagementService(
             dbContext.Remove(user);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
+        else
+        {
+            throw new Exception($"User with id {userId} not found");
+        }
     }
 
-    public async Task<UserViewModel> UpdateAsync(UserViewModel userUpdateModel, CancellationToken cancellationToken = default)
+    public async Task<UserViewModel?> UpdateAsync(UserUpdateModel userUpdateModel, CancellationToken cancellationToken = default)
     {
         var user = await dbContext.Users.SingleOrDefaultAsync(user => user.Id == userUpdateModel.Id, cancellationToken);
         if (user is not null)
@@ -88,7 +86,7 @@ public class UserManagementService(
             return FromEntity(user);
         }
 
-        return userUpdateModel;
+        throw new Exception($"User with id {userUpdateModel.Id} not found");
     }
 
     private static UserViewModel FromEntity(User user) => new()

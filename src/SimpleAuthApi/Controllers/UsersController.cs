@@ -9,10 +9,12 @@ namespace SimpleAuthApi.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserManagementService userManagementService;
+    private readonly ILogger<UsersController> logger;
 
-    public UsersController(IUserManagementService userManagementService)
+    public UsersController(IUserManagementService userManagementService, ILogger<UsersController> logger)
     {
         this.userManagementService = userManagementService;
+        this.logger = logger;
     }
 
     [HttpGet("{id}")]
@@ -47,16 +49,42 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult<UserViewModel>> Update([FromBody] UserViewModel model)
+    public async Task<ActionResult<UserViewModel>> Update([FromBody] UserUpdateModel model)
     {
-        var result = await userManagementService.UpdateAsync(model, HttpContext.RequestAborted);
-        return Ok(result);
+        try
+        {
+            var result = await userManagementService.UpdateAsync(model, HttpContext.RequestAborted);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains($"User with id {model.Id} not found"))
+            {
+                return NotFound(ex.Message);
+            }
+
+            logger.LogError(ex, "Error updating user");
+            return StatusCode(500);
+        }
     }
 
-    [HttpDelete]
-    public async Task<ActionResult> Delete([FromBody] Guid id)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(Guid id)
     {
-        await userManagementService.DeleteAsync(id, HttpContext.RequestAborted);
-        return Ok();
+        try
+        {
+            await userManagementService.DeleteAsync(id, HttpContext.RequestAborted);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains($"User with id {id} not found"))
+            {
+                return NotFound(ex.Message);
+            }
+
+            logger.LogError(ex, "Error updating user");
+            return StatusCode(500);
+        }
     }
 }
