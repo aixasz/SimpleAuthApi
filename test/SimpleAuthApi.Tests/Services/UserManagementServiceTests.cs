@@ -4,6 +4,7 @@ using NSubstitute;
 using SimpleAuthApi.Domain;
 using SimpleAuthApi.Domain.Entities;
 using SimpleAuthApi.Domain.Models;
+using SimpleAuthApi.Domain.Models.UserManagement;
 using SimpleAuthApi.Services;
 
 namespace SimpleAuthApi.Tests.Services;

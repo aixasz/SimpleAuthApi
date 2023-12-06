@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleAuthApi.Domain;
 using SimpleAuthApi.Domain.Entities;
-using SimpleAuthApi.Domain.Models;
+using SimpleAuthApi.Domain.Models.UserManagement;
 
 namespace SimpleAuthApi.Services;
 

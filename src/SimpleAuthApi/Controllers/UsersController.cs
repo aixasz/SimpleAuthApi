@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SimpleAuthApi.Domain.Models;
+using SimpleAuthApi.Domain.Models.UserManagement;
 using SimpleAuthApi.Services;
 
 namespace SimpleAuthApi.Controllers;

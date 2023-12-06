@@ -1,4 +1,4 @@
-﻿using SimpleAuthApi.Domain.Models;
+﻿using SimpleAuthApi.Domain.Models.UserManagement;
 
 namespace SimpleAuthApi.Services;
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using SimpleAuthApi.Domain.Models;
+using SimpleAuthApi.Domain.Models.UserManagement;
 using System.Net;
 using System.Text;
 using System.Text.Json;

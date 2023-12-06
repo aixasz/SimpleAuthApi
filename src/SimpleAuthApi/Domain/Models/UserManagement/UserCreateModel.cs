@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SimpleAuthApi.Domain.Models;
+namespace SimpleAuthApi.Domain.Models.UserManagement;
 
 public class UserCreateModel
 {
