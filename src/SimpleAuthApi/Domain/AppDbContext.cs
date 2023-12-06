@@ -7,11 +7,14 @@ namespace SimpleAuthApi.Domain;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, Role, Guid>(options)
 {
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
         builder.Entity<User>().HasQueryFilter(p => !p.IsDeleted);
+        builder.Entity<RefreshToken>().HasQueryFilter(p => !p.IsRevoked);
     }
 
     public override int SaveChanges()

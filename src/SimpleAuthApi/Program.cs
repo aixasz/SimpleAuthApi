@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SimpleAuthApi.Configuration;
 using SimpleAuthApi.Domain;
 using SimpleAuthApi.Domain.Entities;
 using SimpleAuthApi.Services;
@@ -23,6 +24,10 @@ builder.Services.AddControllers();
 
 // translate exceptions to problem details response.
 builder.Services.AddProblemDetails();
+
+builder.Services.AddOptions<Jwt>()
+    .Bind(builder.Configuration.GetSection("Jwt"))
+    .ValidateDataAnnotations();
 
 builder.Services.AddTransient<IUserManagementService, UserManagementService>();
 
