@@ -1,13 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SimpleAuthApi.Configuration;
 using SimpleAuthApi.Domain;
 using SimpleAuthApi.Domain.Entities;
 using SimpleAuthApi.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("Api"));
 
@@ -15,21 +16,33 @@ builder.Services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-builder.Services.AddAuthentication(IdentityConstants.BearerScheme)
-    .AddBearerToken(IdentityConstants.BearerScheme);
+var jwtSettingsConfiguration = builder.Configuration.GetSection(nameof(JwtSettings));
+var jwtSettings = jwtSettingsConfiguration.Get<JwtSettings>();
+builder.Services.AddOptions<JwtSettings>()
+    .Bind(jwtSettingsConfiguration)
+    .ValidateDataAnnotations();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 
-// translate exceptions to problem details response.
 builder.Services.AddProblemDetails();
 
-builder.Services.AddOptions<Jwt>()
-    .Bind(builder.Configuration.GetSection("Jwt"))
-    .ValidateDataAnnotations();
-
 builder.Services.AddTransient<IUserManagementService, UserManagementService>();
+builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -44,7 +57,6 @@ builder.Services.AddCors(options => options
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SimpleAuthApi.Domain.Models.UserManagement;
 using SimpleAuthApi.Services;
 
@@ -6,6 +7,7 @@ namespace SimpleAuthApi.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserManagementService userManagementService;
@@ -42,6 +44,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<ActionResult<UserViewModel>> Create([FromBody] UserCreateModel model)
     {
         var result = await userManagementService.CreateAsync(model, HttpContext.RequestAborted);

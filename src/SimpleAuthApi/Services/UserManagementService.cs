@@ -6,6 +6,7 @@ using SimpleAuthApi.Domain.Models.UserManagement;
 
 namespace SimpleAuthApi.Services;
 
+
 public class UserManagementService(
     AppDbContext dbContext,
     UserManager<User> userManager) : IUserManagementService

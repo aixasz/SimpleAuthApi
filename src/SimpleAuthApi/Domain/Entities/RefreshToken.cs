@@ -1,7 +1,10 @@
-﻿namespace SimpleAuthApi.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SimpleAuthApi.Domain.Entities;
 
 public class RefreshToken
 {
+    [Key]
     public string Token { get; set; }
     public DateTime ExpiryDate { get; set; }
     public bool IsRevoked { get; set; }

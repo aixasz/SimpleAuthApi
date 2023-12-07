@@ -1,25 +1,44 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
-using SimpleAuthApi.Domain.Models;
+﻿using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Mvc.Testing;
+using SimpleAuthApi.Domain.Models.Authentication;
 using SimpleAuthApi.Domain.Models.UserManagement;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
 namespace SimpleAuthApi.Tests.Controllers;
 
-public class UsersControllerTest(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class UsersControllerTest : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly HttpClient httpClient = factory.CreateClient();
+    private readonly HttpClient httpClient;
     private readonly JsonSerializerOptions jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
+    public UsersControllerTest(WebApplicationFactory<Program> factory)
+    {
+        httpClient = factory.CreateClient();
+        httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+
+        StringContent content = new(JsonSerializer.Serialize(new LoginModel
+        {
+            Username = "thong.smith@test.com",
+            Password = "P@55w0rd!"
+        }), Encoding.UTF8, "application/json");
+
+        var loginResponse = httpClient.PostAsync("/api/auth/login", content).Result;
+
+        var json = loginResponse.Content.ReadAsStringAsync().Result;
+        var accessTokenResponse = JsonSerializer.Deserialize<AccessTokenResponse>(json, jsonSerializerOptions);
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessTokenResponse.AccessToken);
+    }
+
     [Fact]
     public async Task GetById_WhenCalled_ReturnsUser()
     {
         // Arrange
-
         var userId = new Guid("598d4799-3f99-40a2-8bc1-f949f1ce911d");
         var expectedUrl = $"/api/users/get/{userId}";
 
