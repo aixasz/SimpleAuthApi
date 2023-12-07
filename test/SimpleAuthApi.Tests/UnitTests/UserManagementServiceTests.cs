@@ -7,7 +7,7 @@ using SimpleAuthApi.Domain.Models;
 using SimpleAuthApi.Domain.Models.UserManagement;
 using SimpleAuthApi.Services;
 
-namespace SimpleAuthApi.Tests.Services;
+namespace SimpleAuthApi.Tests.UnitTests;
 
 public class UserManagementServiceTests
 {
